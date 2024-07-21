@@ -9,25 +9,21 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-image: url('https://telegra.ph/file/e0430b41583cfd410cdd4.jpg');
-      background-size: cover;
+      background-color: #e0f7fa;
       font-family: 'Helvetica', sans-serif;
       margin: 0;
-      overflow: hidden;
     }
 
     .container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 500px;
+      width: 400px;
+      height: 400px;
       padding: 25px;
       border-radius: 15px;
-      background-color: rgba(255, 255, 255, 0.9);
+      background-color: #ffffff;
       box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-      position: relative;
-      z-index: 2;
-      transition: filter 0.3s ease;
     }
 
     .header {
@@ -57,11 +53,6 @@
       background-color: #f9f9f9;
       box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
       text-align: center;
-      animation: neon 1.5s infinite alternate;
-    }
-
-    .main input::placeholder {
-      text-align: center;
     }
 
     .main button {
@@ -74,9 +65,7 @@
       border-radius: 25px;
       cursor: pointer;
       transition: all 0.3s ease;
-      margin-bottom: 15px;
       box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
-      animation: neon 1.5s infinite alternate;
     }
 
     .main button:hover {
@@ -93,10 +82,8 @@
       border-radius: 25px;
       cursor: pointer;
       margin-top: 10px;
-      margin-bottom: 15px;
       transition: all 0.3s ease;
       box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
-      animation: neon 1.5s infinite alternate;
     }
 
     #copyb:hover {
@@ -113,138 +100,45 @@
     .logo {
       margin-bottom: 20px;
     }
-
-    .loading {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 50px;
-      height: 50px;
-      border: 5px solid #ccc;
-      border-top: 5px solid #128c7e;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      z-index: 3;
-    }
-
-    .blurred {
-      filter: blur(5px);
-    }
-
-    .error {
-      color: red;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-    .instructions {
-      margin-top: 20px;
-      color: #555;
-      font-size: 14px;
-    }
-
-    .code-box {
-      margin-top: 20px;
-      background-color: #f9f9f9;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      padding: 15px;
-      box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
-      text-align: center;
-    }
-
-    .code-box span {
-      display: block;
-      font-size: 20px;
-      font-weight: bold;
-    }
-
-    .code-box button {
-      width: 100%;
-      margin-top: 10px;
-      height: 40px;
-    }
-
-    @keyframes neon {
-      from {
-        box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
-      }
-      to {
-        box-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff;
-      }
-    }
-
-    @keyframes spin {
-      0% { transform: translate(-50%, -50%) rotate(0deg); }
-      100% { transform: translate(-50%, -50%) rotate(360deg); }
-    }
   </style>
 </head>
 <body>
-  <div class="container" id="content">
+  <div class="container">
     <div class="header">
       <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Logo" width="50">
       <h1>Ethix-MD PAIRING SERVER</h1>
     </div>
     <div class="main">
       <form>
-        <div class="error" id="error"></div>
-        <input type="text" id="number" placeholder="+ Enter your phone number with country code">
+        <input type="number" id="number" placeholder="Enter your phone number with country code">
         <button id="submit">Submit</button>
         <main id="pair"></main>
-        <div class="instructions" id="instructions" style="display: none;">
-          Linking WhatsApp account <span id="submitted_number"></span> (edit)
-          <ol>
-            <li>Open WhatsApp on your phone</li>
-            <li>Tap Menu on Android, or Settings on iPhone</li>
-            <li>Tap Linked devices and then Link a device</li>
-            <li>Tap Link with phone number instead and enter this code on your phone</li>
-          </ol>
-        </div>
       </form>
-      <div class="code-box" id="code-box" style="display: none;">
-        <span id="code"></span>
-        <button id="copyb" onclick="Copy()">Copy Code</button>
-        <button id="edit" style="margin-top: 10px;" onclick="editNumber()">Edit Number</button>
-      </div>
     </div>
   </div>
-  <div class="loading" id="loading" style="display: none;"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
   <script>
-    let pairDiv = document.getElementById("pair");
-    let submitButton = document.getElementById("submit");
-    let numberInput = document.getElementById("number");
-    let errorDiv = document.getElementById("error");
-    let loadingDiv = document.getElementById("loading");
-    let contentDiv = document.getElementById("content");
-    let codeBox = document.getElementById("code-box");
-    let codeSpan = document.getElementById("code");
-    let instructionsDiv = document.getElementById("instructions");
-    let submittedNumberSpan = document.getElementById("submitted_number");
+    let a = document.getElementById("pair");
+    let b = document.getElementById("submit");
+    let c = document.getElementById("number");
 
     let isSubmitting = false;
     let isCodeDisplayed = false;
 
     async function Copy() {
-      let text = document.getElementById("copyb").innerText;
-      await navigator.clipboard.writeText(codeSpan.innerText.replace('CODE: ', ''));
-      document.getElementById("copyb").innerText = "COPIED";
+      let text = document.getElementById("copy").innerText;
+      let obj = document.getElementById("copy");
+      await navigator.clipboard.writeText(obj.innerText.replace('CODE: ', ''));
+      obj.innerText = "COPIED";
+      obj.style.color = "blue";
       setTimeout(() => {
-        document.getElementById("copyb").innerText = text;
+        obj.innerText = text;
+        obj.style.color = "black";
       }, 500);
     }
 
-    function editNumber() {
-      codeBox.style.display = "none";
-      instructionsDiv.style.display = "none";
-      numberInput.value = "";
-      numberInput.focus();
-    }
-
-    submitButton.addEventListener("click", async (e) => {
+    b.addEventListener("click", async (e) => {
       e.preventDefault();
 
       if (isCodeDisplayed) {
@@ -253,46 +147,53 @@
       }
 
       if (isSubmitting) {
+        alert("Please wait for the code before trying to request again.");
         return;
       }
 
-      if (!numberInput.value || numberInput.value === '+') {
-        errorDiv.innerText = "Field cannot be blank";
-        return;
-      } else if (numberInput.value.replace(/[^0-9]/g, '').length < 11) {
-        errorDiv.innerText = "Invalid phone number";
-        return;
-      }
+      if (!c.value) {
+        a.innerHTML = '<a style="color:black;font-weight:bold">Enter your WhatsApp number with a country code</a><br><br>';
+      } else if (c.value.replace(/[^0-9]/g, "").length < 11) {
+        a.innerHTML = '<a style="color:black;font-weight:bold">Invalid number format</a><br><br>';
+      } else {
+        isSubmitting = true;
 
-      let number = numberInput.value;
-      errorDiv.innerText = "";
+        const bc = c.value.replace(/[^0-9]/g, "");
+        let bb = "";
+        let bbc = "";
+        const cc = bc.split('');
+        cc.map(a => {
+          bbc += a;
+          if (bbc.length == 3) {
+            bb += " " + a;
+          } else if (bbc.length == 8) {
+            bb += " " + a;
+          } else {
+            bb += a;
+          }
+        });
 
-      isSubmitting = true;
-      loadingDiv.style.display = "block";
-      contentDiv.classList.add("blurred");
+        c.type = "text";
+        c.value = "+" + bb;
+        c.style = "color:black;font-size:20px";
+        a.innerHTML = '<a style="color:black;font-weight:bold">Please wait for some time</a><br><br>';
 
-      try {
-        let res = await axios.get(`https://ethix-md-paircode.onrender.com/paircode?number=${number}`);
-
-        if (res.data && res.data.paircode) {
-          codeSpan.innerText = `CODE: ${res.data.paircode}`;
-          submittedNumberSpan.innerText = number;
-          instructionsDiv.style.display = "block";
-          codeBox.style.display = "block";
+        try {
+          let {
+            data
+          } = await axios(`/pair?phone=${bc}`);
+          let code = data.code || "Service Unavailable";
+          a.innerHTML = `<div><span id="copy" onclick="Copy()">CODE: ${code}</span></div><button id="copyb" onclick="Copy()">Copy Code</button>`;
           isCodeDisplayed = true;
 
           setTimeout(() => {
             isCodeDisplayed = false;
           }, 120000);
-        } else {
-          errorDiv.innerText = "Error fetching pair code. Please try again.";
+        } catch (error) {
+          a.innerHTML = '<a style="color:red;font-weight:bold">Error: Please try again later.</a><br><br>';
+        } finally {
+          isSubmitting = false;
         }
-      } catch (err) {
-        errorDiv.innerText = "Error fetching pair code. Please try again.";
-      } finally {
-        isSubmitting = false;
-        loadingDiv.style.display = "none";
-        contentDiv.classList.remove("blurred");
       }
     });
   </script>
