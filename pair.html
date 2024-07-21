@@ -145,6 +145,28 @@
       font-size: 14px;
     }
 
+    .code-box {
+      margin-top: 20px;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+      text-align: center;
+    }
+
+    .code-box span {
+      display: block;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .code-box button {
+      width: 100%;
+      margin-top: 10px;
+      height: 40px;
+    }
+
     @keyframes neon {
       from {
         box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
@@ -172,9 +194,20 @@
         <input type="text" id="number" placeholder="+ Enter your phone number with country code">
         <button id="submit">Submit</button>
         <main id="pair"></main>
+        <div class="instructions" id="instructions" style="display: none;">
+          Linking WhatsApp account (submitted_number) (edit)
+          <ol>
+            <li>Open WhatsApp on your phone</li>
+            <li>Tap Menu on Android, or Settings on iPhone</li>
+            <li>Tap Linked devices and then Link a device</li>
+            <li>Tap Link with phone number instead and enter this code on your phone</li>
+          </ol>
+        </div>
       </form>
-      <div class="instructions">
-        Enter the pairing code in your WhatsApp app under "Link a device" section.
+      <div class="code-box" id="code-box" style="display: none;">
+        <span id="code"></span>
+        <button id="copyb" onclick="Copy()">Copy Code</button>
+        <button id="edit" style="margin-top: 10px;" onclick="editNumber()">Edit Number</button>
       </div>
     </div>
   </div>
@@ -188,20 +221,27 @@
     let errorDiv = document.getElementById("error");
     let loadingDiv = document.getElementById("loading");
     let contentDiv = document.getElementById("content");
+    let codeBox = document.getElementById("code-box");
+    let codeSpan = document.getElementById("code");
+    let instructionsDiv = document.getElementById("instructions");
 
     let isSubmitting = false;
     let isCodeDisplayed = false;
 
     async function Copy() {
-      let text = document.getElementById("copy").innerText;
-      let obj = document.getElementById("copy");
-      await navigator.clipboard.writeText(obj.innerText.replace('CODE: ', ''));
-      obj.innerText = "COPIED";
-      obj.style.color = "blue";
+      let text = document.getElementById("copyb").innerText;
+      await navigator.clipboard.writeText(codeSpan.innerText.replace('CODE: ', ''));
+      document.getElementById("copyb").innerText = "COPIED";
       setTimeout(() => {
-        obj.innerText = text;
-        obj.style.color = "black";
+        document.getElementById("copyb").innerText = text;
       }, 500);
+    }
+
+    function editNumber() {
+      codeBox.style.display = "none";
+      instructionsDiv.style.display = "none";
+      numberInput.value = "";
+      numberInput.focus();
     }
 
     submitButton.addEventListener("click", async (e) => {
@@ -250,7 +290,9 @@
         try {
           let { data } = await axios(`/pair?phone=${bc}`);
           let code = data.code || "Service Unavailable";
-          pairDiv.innerHTML = `<div><span id="copy" onclick="Copy()">CODE: ${code}</span></div><button id="copyb" onclick="Copy()">Copy Code</button>`;
+          codeSpan.innerHTML = `CODE: ${code}`;
+          codeBox.style.display = "block";
+          instructionsDiv.style.display = "block";
           isCodeDisplayed = true;
 
           setTimeout(() => {
