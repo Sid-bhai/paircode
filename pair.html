@@ -21,7 +21,6 @@
       flex-direction: column;
       align-items: center;
       width: 500px;
-      height: 500px;
       padding: 25px;
       border-radius: 15px;
       background-color: rgba(255, 255, 255, 0.9);
@@ -195,7 +194,7 @@
         <button id="submit">Submit</button>
         <main id="pair"></main>
         <div class="instructions" id="instructions" style="display: none;">
-          Linking WhatsApp account (submitted_number) (edit)
+          Linking WhatsApp account <span id="submitted_number"></span> (edit)
           <ol>
             <li>Open WhatsApp on your phone</li>
             <li>Tap Menu on Android, or Settings on iPhone</li>
@@ -224,6 +223,7 @@
     let codeBox = document.getElementById("code-box");
     let codeSpan = document.getElementById("code");
     let instructionsDiv = document.getElementById("instructions");
+    let submittedNumberSpan = document.getElementById("submitted_number");
 
     let isSubmitting = false;
     let isCodeDisplayed = false;
@@ -259,52 +259,40 @@
       if (!numberInput.value || numberInput.value === '+') {
         errorDiv.innerText = "Field cannot be blank";
         return;
-      } else if (numberInput.value.replace(/[^0-9]/g, "").length < 11) {
-        errorDiv.innerText = "Invalid number format";
+      } else if (numberInput.value.replace(/[^0-9]/g, '').length < 11) {
+        errorDiv.innerText = "Invalid phone number";
         return;
-      } else {
-        errorDiv.innerText = "";
-        isSubmitting = true;
-        contentDiv.classList.add("blurred");
-        loadingDiv.style.display = "block";
+      }
 
-        const bc = numberInput.value.replace(/[^0-9]/g, "");
-        let bb = "";
-        let bbc = "";
-        const cc = bc.split('');
-        cc.map(a => {
-          bbc += a;
-          if (bbc.length == 3) {
-            bb += " " + a;
-          } else if (bbc.length == 8) {
-            bb += " " + a;
-          } else {
-            bb += a;
-          }
-        });
+      let number = numberInput.value;
+      errorDiv.innerText = "";
 
-        numberInput.type = "text";
-        numberInput.value = "+" + bb;
-        numberInput.style = "color:black;font-size:20px";
+      isSubmitting = true;
+      loadingDiv.style.display = "block";
+      contentDiv.classList.add("blurred");
 
-        try {
-          let { data } = await axios(`/pair?phone=${bc}`);
-          let code = data.code || "Service Unavailable";
-          codeSpan.innerHTML = `CODE: ${code}`;
-          codeBox.style.display = "block";
+      try {
+        let res = await axios.get(`https://ethix-md-paircode.onrender.com/paircode?number=${number}`);
+
+        if (res.data && res.data.paircode) {
+          codeSpan.innerText = `CODE: ${res.data.paircode}`;
+          submittedNumberSpan.innerText = number;
           instructionsDiv.style.display = "block";
+          codeBox.style.display = "block";
           isCodeDisplayed = true;
 
           setTimeout(() => {
             isCodeDisplayed = false;
           }, 120000);
-        } catch (error) {
-          pairDiv.innerHTML = '<a style="color:red;font-weight:bold">Error: Please try again later.</a><br><br>';
-        } finally {
-          isSubmitting = false;
-          contentDiv.classList.remove("blurred");
-          loadingDiv.style.display = "none";
+        } else {
+          errorDiv.innerText = "Error fetching pair code. Please try again.";
         }
+      } catch (err) {
+        errorDiv.innerText = "Error fetching pair code. Please try again.";
+      } finally {
+        isSubmitting = false;
+        loadingDiv.style.display = "none";
+        contentDiv.classList.remove("blurred");
       }
     });
   </script>
