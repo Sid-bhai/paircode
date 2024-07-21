@@ -67,11 +67,6 @@ function deleteSessionFolder() {
 }
 
 app.get('/', async (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'))
-})
-
-
-app.get('/code', async (req, res) => {
   res.sendFile(path.join(__dirname, 'pair.html'))
 })
 
