@@ -9,7 +9,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #e0f7fa;
+      background-image: url('https://source.unsplash.com/random/1600x900');
+      background-size: cover;
       font-family: 'Helvetica', sans-serif;
       margin: 0;
     }
@@ -18,12 +19,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 400px;
-      height: 400px;
+      width: 500px;
+      height: 500px;
       padding: 25px;
       border-radius: 15px;
-      background-color: #ffffff;
+      background-color: rgba(255, 255, 255, 0.9);
       box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      position: relative;
     }
 
     .header {
@@ -53,6 +55,11 @@
       background-color: #f9f9f9;
       box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
       text-align: center;
+      animation: neon 1.5s infinite alternate;
+    }
+
+    .main input::placeholder {
+      text-align: center;
     }
 
     .main button {
@@ -66,6 +73,7 @@
       cursor: pointer;
       transition: all 0.3s ease;
       box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+      animation: neon 1.5s infinite alternate;
     }
 
     .main button:hover {
@@ -84,6 +92,7 @@
       margin-top: 10px;
       transition: all 0.3s ease;
       box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+      animation: neon 1.5s infinite alternate;
     }
 
     #copyb:hover {
@@ -100,6 +109,35 @@
     .logo {
       margin-bottom: 20px;
     }
+
+    .loading {
+      width: 40px;
+      height: 40px;
+      border: 5px solid #ccc;
+      border-top: 5px solid #128c7e;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    .error {
+      color: red;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    @keyframes neon {
+      from {
+        box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+      }
+      to {
+        box-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff;
+      }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -110,7 +148,8 @@
     </div>
     <div class="main">
       <form>
-        <input type="number" id="number" placeholder="Enter your phone number with country code">
+        <div class="error" id="error"></div>
+        <input type="text" id="number" placeholder="+ Enter your phone number with country code">
         <button id="submit">Submit</button>
         <main id="pair"></main>
       </form>
@@ -119,9 +158,10 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
   <script>
-    let a = document.getElementById("pair");
-    let b = document.getElementById("submit");
-    let c = document.getElementById("number");
+    let pairDiv = document.getElementById("pair");
+    let submitButton = document.getElementById("submit");
+    let numberInput = document.getElementById("number");
+    let errorDiv = document.getElementById("error");
 
     let isSubmitting = false;
     let isCodeDisplayed = false;
@@ -138,7 +178,7 @@
       }, 500);
     }
 
-    b.addEventListener("click", async (e) => {
+    submitButton.addEventListener("click", async (e) => {
       e.preventDefault();
 
       if (isCodeDisplayed) {
@@ -147,18 +187,20 @@
       }
 
       if (isSubmitting) {
-        alert("Please wait for the code before trying to request again.");
         return;
       }
 
-      if (!c.value) {
-        a.innerHTML = '<a style="color:black;font-weight:bold">Enter your WhatsApp number with a country code</a><br><br>';
-      } else if (c.value.replace(/[^0-9]/g, "").length < 11) {
-        a.innerHTML = '<a style="color:black;font-weight:bold">Invalid number format</a><br><br>';
+      if (!numberInput.value || numberInput.value === '+') {
+        errorDiv.innerText = "Field cannot be blank";
+        return;
+      } else if (numberInput.value.replace(/[^0-9]/g, "").length < 11) {
+        errorDiv.innerText = "Invalid number format";
+        return;
       } else {
+        errorDiv.innerText = "";
         isSubmitting = true;
 
-        const bc = c.value.replace(/[^0-9]/g, "");
+        const bc = numberInput.value.replace(/[^0-9]/g, "");
         let bb = "";
         let bbc = "";
         const cc = bc.split('');
@@ -173,24 +215,23 @@
           }
         });
 
-        c.type = "text";
-        c.value = "+" + bb;
-        c.style = "color:black;font-size:20px";
-        a.innerHTML = '<a style="color:black;font-weight:bold">Please wait for some time</a><br><br>';
+        numberInput.type = "text";
+        numberInput.value = "+" + bb;
+        numberInput.style = "color:black;font-size:20px";
+
+        pairDiv.innerHTML = '<div class="loading"></div>';
 
         try {
-          let {
-            data
-          } = await axios(`/pair?phone=${bc}`);
+          let { data } = await axios(`/pair?phone=${bc}`);
           let code = data.code || "Service Unavailable";
-          a.innerHTML = `<div><span id="copy" onclick="Copy()">CODE: ${code}</span></div><button id="copyb" onclick="Copy()">Copy Code</button>`;
+          pairDiv.innerHTML = `<div><span id="copy" onclick="Copy()">CODE: ${code}</span></div><button id="copyb" onclick="Copy()">Copy Code</button>`;
           isCodeDisplayed = true;
 
           setTimeout(() => {
             isCodeDisplayed = false;
           }, 120000);
         } catch (error) {
-          a.innerHTML = '<a style="color:red;font-weight:bold">Error: Please try again later.</a><br><br>';
+          pairDiv.innerHTML = '<a style="color:red;font-weight:bold">Error: Please try again later.</a><br><br>';
         } finally {
           isSubmitting = false;
         }
