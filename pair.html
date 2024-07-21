@@ -13,6 +13,7 @@
       background-size: cover;
       font-family: 'Helvetica', sans-serif;
       margin: 0;
+      overflow: hidden;
     }
 
     .container {
@@ -26,6 +27,8 @@
       background-color: rgba(255, 255, 255, 0.9);
       box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
       position: relative;
+      z-index: 2;
+      transition: filter 0.3s ease;
     }
 
     .header {
@@ -72,6 +75,7 @@
       border-radius: 25px;
       cursor: pointer;
       transition: all 0.3s ease;
+      margin-bottom: 15px;
       box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
       animation: neon 1.5s infinite alternate;
     }
@@ -90,6 +94,7 @@
       border-radius: 25px;
       cursor: pointer;
       margin-top: 10px;
+      margin-bottom: 15px;
       transition: all 0.3s ease;
       box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
       animation: neon 1.5s infinite alternate;
@@ -111,18 +116,33 @@
     }
 
     .loading {
-      width: 40px;
-      height: 40px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 50px;
+      height: 50px;
       border: 5px solid #ccc;
       border-top: 5px solid #128c7e;
       border-radius: 50%;
       animation: spin 1s linear infinite;
+      z-index: 3;
+    }
+
+    .blurred {
+      filter: blur(5px);
     }
 
     .error {
       color: red;
       font-weight: bold;
       margin-bottom: 10px;
+    }
+
+    .instructions {
+      margin-top: 20px;
+      color: #555;
+      font-size: 14px;
     }
 
     @keyframes neon {
@@ -135,13 +155,13 @@
     }
 
     @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
   </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container" id="content">
     <div class="header">
       <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Logo" width="50">
       <h1>Ethix-MD PAIRING SERVER</h1>
@@ -153,8 +173,12 @@
         <button id="submit">Submit</button>
         <main id="pair"></main>
       </form>
+      <div class="instructions">
+        Enter the pairing code in your WhatsApp app under "Link a device" section.
+      </div>
     </div>
   </div>
+  <div class="loading" id="loading" style="display: none;"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
   <script>
@@ -162,6 +186,8 @@
     let submitButton = document.getElementById("submit");
     let numberInput = document.getElementById("number");
     let errorDiv = document.getElementById("error");
+    let loadingDiv = document.getElementById("loading");
+    let contentDiv = document.getElementById("content");
 
     let isSubmitting = false;
     let isCodeDisplayed = false;
@@ -199,6 +225,8 @@
       } else {
         errorDiv.innerText = "";
         isSubmitting = true;
+        contentDiv.classList.add("blurred");
+        loadingDiv.style.display = "block";
 
         const bc = numberInput.value.replace(/[^0-9]/g, "");
         let bb = "";
@@ -219,8 +247,6 @@
         numberInput.value = "+" + bb;
         numberInput.style = "color:black;font-size:20px";
 
-        pairDiv.innerHTML = '<div class="loading"></div>';
-
         try {
           let { data } = await axios(`/pair?phone=${bc}`);
           let code = data.code || "Service Unavailable";
@@ -234,6 +260,8 @@
           pairDiv.innerHTML = '<a style="color:red;font-weight:bold">Error: Please try again later.</a><br><br>';
         } finally {
           isSubmitting = false;
+          contentDiv.classList.remove("blurred");
+          loadingDiv.style.display = "none";
         }
       }
     });
