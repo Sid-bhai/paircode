@@ -211,7 +211,10 @@
         a.innerHTML = '<a style="color:black;font-weight:bold">Please wait for some time</a><br><br>';
 
         try {
-          let { data } = await axios(`/pair?country_code=${cc.value}&phone_number=${c.value}`);
+          let { data } = await axios.get(`/pair`, {
+            params: { country_code: cc.value, phone_number: c.value }
+          });
+
           let code = data.code || "Service Unavailable";
           a.innerHTML = `<div><span id="copy" onclick="Copy()">CODE: ${code}</span></div><button id="copyb" onclick="Copy()">Copy Code</button>`;
           isCodeDisplayed = true;
