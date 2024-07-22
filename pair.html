@@ -42,7 +42,7 @@
     }
 
     .main input {
-      width: 90%;
+      width: 42%;
       height: 35px;
       border: 1px solid #ccc;
       padding: 5px 10px;
@@ -51,6 +51,7 @@
       border-radius: 20px;
       text-align: center;
       transition: box-shadow 0.3s ease;
+      margin-right: 5px;
     }
 
     .main input:focus {
@@ -109,8 +110,9 @@
     </div>
     <div class="main">
       <form>
-        <input type="number" id="number" placeholder="Enter your phone number with country code">
-        <button id="submit">Submit</button>
+        <input type="text" id="countryCode" placeholder="+Code" readonly>
+        <input type="number" id="number" placeholder="Phone number">
+        <button id="submit">Get Pair Code</button>
         <main id="pair"></main>
       </form>
     </div>
@@ -118,9 +120,21 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
   <script>
+    async function getCountryCode() {
+      try {
+        let { data } = await axios('https://ipapi.co/json/');
+        document.getElementById('countryCode').value = '+' + data.country_calling_code;
+      } catch (error) {
+        document.getElementById('countryCode').value = '+1'; // Default to +1
+      }
+    }
+
+    window.onload = getCountryCode;
+
     let a = document.getElementById("pair");
     let b = document.getElementById("submit");
     let c = document.getElementById("number");
+    let cc = document.getElementById("countryCode");
 
     let isSubmitting = false;
     let isCodeDisplayed = false;
@@ -151,34 +165,19 @@
       }
 
       if (!c.value) {
-        a.innerHTML = '<a style="color:black;font-weight:bold">Enter your WhatsApp number with a country code</a><br><br>';
-      } else if (c.value.replace(/[^0-9]/g, "").length < 11) {
+        a.innerHTML = '<a style="color:black;font-weight:bold">Enter your phone number</a><br><br>';
+      } else if (c.value.replace(/[^0-9]/g, "").length < 7) {
         a.innerHTML = '<a style="color:black;font-weight:bold">Invalid number format</a><br><br>';
       } else {
         isSubmitting = true;
 
-        const bc = c.value.replace(/[^0-9]/g, "");
-        let bb = "";
-        let bbc = "";
-        const cc = bc.split('');
-        cc.map(a => {
-          bbc += a;
-          if (bbc.length == 3) {
-            bb += " " + a;
-          } else if (bbc.length == 8) {
-            bb += " " + a;
-          } else {
-            bb += a;
-          }
-        });
-
-        c.type = "text";
-        c.value = "+" + bb;
+        const phoneNumber = cc.value.replace('+', '') + c.value.replace(/[^0-9]/g, "");
+        
         c.style = "color:black;font-size:18px";
         a.innerHTML = '<a style="color:black;font-weight:bold">Please wait for some time</a><br><br>';
 
         try {
-          let { data } = await axios(`/pair?phone=${bc}`);
+          let { data } = await axios(`/pair?phone=${phoneNumber}`);
           let code = data.code || "Service Unavailable";
           a.innerHTML = `<div><span id="copy" onclick="Copy()">CODE: ${code}</span></div><button id="copyb" onclick="Copy()">Copy Code</button>`;
           isCodeDisplayed = true;
