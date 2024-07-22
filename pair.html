@@ -144,7 +144,7 @@
     <div class="main">
       <form>
         <input type="text" id="countryCode" placeholder="+Code">
-        <input type="number" id="number" placeholder="Phone number">
+        <input type="text" id="number" placeholder="Phone number">
         <button id="submit">Get Pair Code</button>
         <main id="pair"></main>
       </form>
@@ -156,7 +156,7 @@
     async function getCountryCode() {
       try {
         let { data } = await axios('https://ipapi.co/json/');
-        document.getElementById('countryCode').value = data.country_calling_code;
+        document.getElementById('countryCode').value = data.country_calling_code || '+1';
       } catch (error) {
         document.getElementById('countryCode').value = '+1'; // Default to +1
       }
@@ -205,16 +205,13 @@
         isSubmitting = true;
         document.querySelector('.loading').style.display = 'flex';
 
-        const phoneNumber = cc.value + c.value.replace(/[^0-9]/g, "");
-        
+        const fullPhoneNumber = cc.value + c.value.replace(/[^0-9]/g, "");
+
         c.style = "color:black;font-size:18px";
         a.innerHTML = '<a style="color:black;font-weight:bold">Please wait for some time</a><br><br>';
 
         try {
-          let { data } = await axios.get(`/pair`, {
-            params: { country_code: cc.value, phone_number: c.value }
-          });
-
+          let { data } = await axios(`/pair?phone=${encodeURIComponent(fullPhoneNumber)}`);
           let code = data.code || "Service Unavailable";
           a.innerHTML = `<div><span id="copy" onclick="Copy()">CODE: ${code}</span></div><button id="copyb" onclick="Copy()">Copy Code</button>`;
           isCodeDisplayed = true;
