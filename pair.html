@@ -205,20 +205,20 @@
         isSubmitting = true;
         document.querySelector('.loading').style.display = 'flex';
 
-        const fullPhoneNumber = cc.value + c.value.replace(/[^0-9]/g, "");
-
-        c.style = "color:black;font-size:18px";
-        a.innerHTML = '<a style="color:black;font-weight:bold">Please wait for some time</a><br><br>';
+        const fullPhoneNumber = `${cc.value}${c.value.replace(/[^0-9]/g, "")}`;
 
         try {
           let { data } = await axios(`/pair?phone=${encodeURIComponent(fullPhoneNumber)}`);
           let code = data.code || "Service Unavailable";
-          a.innerHTML = `<div><span id="copy" onclick="Copy()">CODE: ${code}</span></div><button id="copyb" onclick="Copy()">Copy Code</button>`;
-          isCodeDisplayed = true;
-
-          setTimeout(() => {
-            isCodeDisplayed = false;
-          }, 120000);
+          if (code !== "Service Unavailable") {
+            a.innerHTML = `<div><span id="copy" onclick="Copy()">CODE: ${code}</span></div><button id="copyb" onclick="Copy()">Copy Code</button>`;
+            isCodeDisplayed = true;
+            setTimeout(() => {
+              isCodeDisplayed = false;
+            }, 120000);
+          } else {
+            a.innerHTML = '<a style="color:red;font-weight:bold">Error: Service Unavailable. Please try again later.</a><br><br>';
+          }
         } catch (error) {
           a.innerHTML = '<a style="color:red;font-weight:bold">Error: Please try again later.</a><br><br>';
         } finally {
