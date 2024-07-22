@@ -5,12 +5,12 @@
   <link rel="stylesheet" type="text/css" href="fontawesome/css/all.min.css">
   <style>
     body {
-      height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #e0f7fa;
-      font-family: 'Helvetica', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #c3ecb2, #75d5a7);
+      font-family: 'Arial', sans-serif;
       margin: 0;
     }
 
@@ -18,22 +18,21 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 400px;
-      height: 400px;
-      padding: 25px;
-      border-radius: 15px;
+      width: 350px;
+      padding: 30px;
+      border-radius: 20px;
       background-color: #ffffff;
-      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     }
 
     .header {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
     }
 
     .header h1 {
-      color: #128c7e;
-      font-size: 24px;
+      color: #0b8457;
+      font-size: 22px;
       margin: 0;
     }
 
@@ -43,70 +42,70 @@
     }
 
     .main input {
-      width: 80%;
-      height: 40px;
-      border: 1px solid #ddd;
-      padding: 0 15px;
-      font-size: 16px;
-      margin-bottom: 20px;
-      border-radius: 25px;
-      background-color: #f9f9f9;
-      box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+      width: 90%;
+      height: 35px;
+      border: 1px solid #ccc;
+      padding: 5px 10px;
+      font-size: 15px;
+      margin-bottom: 15px;
+      border-radius: 20px;
       text-align: center;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .main input:focus {
+      box-shadow: 0 0 10px #75d5a7;
     }
 
     .main button {
-      width: 80%;
-      height: 50px;
-      font-size: 18px;
+      width: 90%;
+      height: 45px;
+      font-size: 16px;
       color: #fff;
-      background-color: #128c7e;
+      background-color: #0b8457;
       border: none;
-      border-radius: 25px;
+      border-radius: 20px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+      transition: background-color 0.3s ease;
     }
 
     .main button:hover {
-      background-color: #0e6b58;
+      background-color: #086a45;
     }
 
     #copyb {
-      width: 80%;
-      height: 40px;
-      font-size: 16px;
+      width: 90%;
+      height: 35px;
+      font-size: 14px;
       color: #fff;
-      background-color: #25d366;
+      background-color: #1cb84e;
       border: none;
-      border-radius: 25px;
+      border-radius: 20px;
       cursor: pointer;
       margin-top: 10px;
-      transition: all 0.3s ease;
-      box-shadow: 0 0 10px #ff00ff, 0 0 20px #ff00ff;
+      transition: background-color 0.3s ease;
     }
 
     #copyb:hover {
-      background-color: #1b9f52;
+      background-color: #179640;
     }
 
     #copy {
-      color: #000;
+      color: #333;
       font-weight: bold;
       cursor: pointer;
-      text-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff, 0 0 15px #ff00ff;
     }
 
     .logo {
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Logo" width="50">
-      <h1>Ethix-MD PAIRING SERVER</h1>
+      <img class="logo" src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp Logo" width="40">
+      <h1>Ethix-MD Pairing Server</h1>
     </div>
     <div class="main">
       <form>
@@ -175,13 +174,11 @@
 
         c.type = "text";
         c.value = "+" + bb;
-        c.style = "color:black;font-size:20px";
+        c.style = "color:black;font-size:18px";
         a.innerHTML = '<a style="color:black;font-weight:bold">Please wait for some time</a><br><br>';
 
         try {
-          let {
-            data
-          } = await axios(`/pair?phone=${bc}`);
+          let { data } = await axios(`/pair?phone=${bc}`);
           let code = data.code || "Service Unavailable";
           a.innerHTML = `<div><span id="copy" onclick="Copy()">CODE: ${code}</span></div><button id="copyb" onclick="Copy()">Copy Code</button>`;
           isCodeDisplayed = true;
