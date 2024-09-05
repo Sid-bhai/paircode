@@ -1,0 +1,21 @@
+{
+  "name": "whatsapp-bot (Ethix-MD)",
+  "description": " Whatsapp bot.",
+  "keywords": [
+    "whatsapp bot"
+  ],
+  "repository": "https://github.com/Sid-bhai/paircode",
+  "stack": "container",
+  "env": { 
+      "PORT": {
+      "description": "port",
+      "required": false,
+      "value": ""
+      }
+  }
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}
